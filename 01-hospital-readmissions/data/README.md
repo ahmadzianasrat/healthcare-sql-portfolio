@@ -50,6 +50,32 @@ A clear, consistent upward trend — readmission risk rises with prior utilizati
 | 3 | 20.29% |
 | 4+ | 30.70% |
 
+**3. Readmission rate by age brackets** ([query](./sql/04_analysis_queries.sql))
+| age_bracket | total_encounters | readmitted_within_30 | readmission_rate_pct |
+|---|---|---|---|
+| 0-20 | 852 | 43 | 5.05 |
+| 20-30 | 1657 | 236 | 14.24 |
+| 30-40 | 3775 | 424 | 11.23 |
+| 40-50 | 9685 | 1027 | 10.60 |
+| 50-60 | 17256 | 1668 | 9.67 |
+| 60-70 | 22483 | 2502 | 11.13 |
+| 70-80 | 26068 | 3069 | 11.77 |
+| 80-90 | 17197 | 2078 | 12.08 |
+| 90-100 | 2793 | 310 | 11.10 |
+
+When checked against age brackets it's almost even except 20-30 which shows 14.24% which was unexpected, since my initial hypothesis was that risk would rise steadily with age (based on the prior-visits pattern) or spike at both extremes — neither held up cleanly., going further with this age group which we confounded with prior inpatient visits, 
+Isolating just the 20-30 age band and breaking it down by prior inpatient visits:
+
+| prior_inpatient_visits | total_encounters | readmitted_within_30 | readmission_rate_pct |
+|---|---|---|---|
+| 0 | 1057 | 58 | 5.49 |
+| 1 | 242 | 42 | 17.36 |
+| 2 | 103 | 30 | 29.13 |
+| 3 | 64 | 13 | 20.31 |
+| 4+ | 191 | 93 | 48.69 |
+
+numbers show that this age group had 48% readmission with 4+ visits; so age alone is a weak/inconsistent predictor, but the combination of younger age and high prior utilization is unusually high-risk — likely reflecting a smaller subgroup of early-onset or poorly-controlled diabetic patients with aggressive disease progression. 
+
 ## Clinical Interpretation
 
 *(To be filled in — connecting the statistical findings to what they mean clinically, e.g., why number of prior inpatient visits or medication changes might plausibly relate to readmission risk.)*
