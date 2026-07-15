@@ -23,12 +23,15 @@ This mirrors a real, ongoing concern in US hospitals under the CMS Hospital Read
 
 ## Approach
 
-*(To be filled in as the project progresses — schema design decisions, how nulls/`?` values were handled, how the ID-mapped fields were joined, etc.)*
-Some description values in the lookup tables are the literal string 'NULL', not an actual database NULL — this is a coded category meaning 'not specified' in the source data, not a missing value. This matters because a query filtering on WHERE description IS NULL would not catch these rows.
+Built a normalized schema in PostgreSQL: one main encounter table (`diabetic_data`) plus three lookup tables (`admission_type`, `discharge_disposition`, `admission_source`) derived from the source's `IDs_mapping.csv`, which packages all three reference tables into a single file that required manual splitting before loading.
+
+Data was loaded via `psql`'s `\copy`, treating the CSV's `?` placeholder as a true SQL NULL. Two columns (`gender`, `discharge_disposition.description`) needed widening after the initial load failed on values exceeding the originally-defined VARCHAR length — a reminder that real-world text fields are hard to size correctly on a first guess.
+
+Some description values in the lookup tables are the literal string 'NULL', not an actual database NULL — this is a coded category meaning 'not specified' in the source data, not a missing value. This matters because a query filtering on `WHERE description IS NULL` would not catch these rows.
+
+A minor whitespace-cleaning step was also needed: several `admission_source` descriptions were loaded with leading spaces from the source CSV, which could silently break exact-match filters — documented and fixed in `sql/03_data_cleaning.sql`.
 
 ## Key Queries & Findings
-
-*(To be filled in — 4–6 business questions answered, with the one-line finding for each, linking to the relevant SQL file.)*
 
 **1. Readmission rate by discharge disposition** ([query](./sql/04_analysis_queries.sql))
 Transfer-to-institutional-care categories show meaningfully higher 30-day readmission rates than home discharge:
@@ -63,8 +66,7 @@ A clear, consistent upward trend — readmission risk rises with prior utilizati
 | 80-90 | 17197 | 2078 | 12.08 |
 | 90-100 | 2793 | 310 | 11.10 |
 
-When checked against age brackets it's almost even except 20-30 which shows 14.24% which was unexpected, since my initial hypothesis was that risk would rise steadily with age (based on the prior-visits pattern) or spike at both extremes — neither held up cleanly., going further with this age group which we confounded with prior inpatient visits, 
-Isolating just the 20-30 age band and breaking it down by prior inpatient visits:
+When checked against age brackets it's almost even except 20-30 which shows 14.24% which was unexpected, since my initial hypothesis was that risk would rise steadily with age (based on the prior-visits pattern) or spike at both extremes — neither held up cleanly. Digging further, I isolated just the 20-30 age band and broke it down by prior inpatient visits to check whether the spike was really about age, or something else:
 
 | prior_inpatient_visits | total_encounters | readmitted_within_30 | readmission_rate_pct |
 |---|---|---|---|
@@ -78,8 +80,6 @@ numbers show that this age group had 48% readmission with 4+ visits; so age alon
 
 ## Clinical Interpretation
 
-*(To be filled in — connecting the statistical findings to what they mean clinically, e.g., why number of prior inpatient visits or medication changes might plausibly relate to readmission risk.)*
-
 The prior-inpatient-visits trend aligns with well-established readmission risk models used in practice, such as the LACE index and HOSPITAL score, which both weight recent prior admissions heavily as a predictor of future readmission. This isn't a novel finding — it's a confirmation that the dataset behaves the way real hospital utilization data is known to behave, which is itself a useful sanity check on the data's validity.
 
 The elevated readmission rates among patients discharged to institutional care (rehab, psychiatric transfer, other inpatient facilities) likely reflect underlying patient complexity rather than the discharge setting itself causing readmission — these patients were probably sicker or had more comorbidities to begin with, which is why they needed that level of care at discharge in the first place. This is a correlation-vs-causation distinction worth being explicit about; the data alone can't separate "the discharge setting caused higher readmission" from "sicker patients get both this discharge setting and higher readmission."
@@ -88,11 +88,13 @@ The "Expired" discharge category requires exclusion from any true readmission-ra
 
 ## What I'd Do Next
 
-*(To be filled in — e.g., bringing this into Python for a proper predictive model, visualizing trends in Power BI, etc.)*
+## What I'd Do Next
 
-- Exclude "Expired" encounters before computing any overall/blended readmission rate
-- Investigate whether the discharge-disposition effect holds after controlling for age and number of prior visits together (do sicker/older patients dominate the high-risk discharge categories?)
-- Bring this into Python for a proper multivariate model once regression is learned, since SQL alone can show correlation but not isolate which factor matters most independently
+- Exclude "Expired" encounters before calculating any overall/blended readmission rate, since death precludes readmission by definition and its inclusion would understate true risk among the eligible population
+- Test whether the discharge-disposition effect holds after controlling for age and prior admissions together — i.e., whether high-risk discharge settings are elevated because of the setting itself, or because they simply contain a higher concentration of already-high-risk patients
+- Bring this dataset into Python once regression is learned, to build a proper multivariate model — SQL is well-suited to finding and describing patterns like these, but isolating which factor matters most *independently* of the others requires a statistical model, not just grouped aggregates
+- Visualize the three key findings (discharge disposition, prior visits, age × prior visits) in Power BI or Tableau once learned, since a stakeholder-facing dashboard would communicate this more effectively than raw tables
+
 ## Files
 
 - `sql/01_schema.sql` — table definitions
