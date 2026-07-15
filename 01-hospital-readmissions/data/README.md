@@ -24,24 +24,49 @@ This mirrors a real, ongoing concern in US hospitals under the CMS Hospital Read
 ## Approach
 
 *(To be filled in as the project progresses — schema design decisions, how nulls/`?` values were handled, how the ID-mapped fields were joined, etc.)*
-There are some values in the diabetic_patients table mentioned as Null, it's type is a string, not of an actually null value, so treated as a hard coded "null".
+Some description values in the lookup tables are the literal string 'NULL', not an actual database NULL — this is a coded category meaning 'not specified' in the source data, not a missing value. This matters because a query filtering on WHERE description IS NULL would not catch these rows.
 
 ## Key Queries & Findings
 
 *(To be filled in — 4–6 business questions answered, with the one-line finding for each, linking to the relevant SQL file.)*
-the raw data suggests transfer-to-institutional-care categories carry meaningfully higher 30-day readmission rates than home discharge, consistent with clinical expectation — but the "Expired" and very-low-volume categories require exclusion/caution before this could inform any real intervention strategy. Discharged/transferred/referred to a psychiatric hospital of psychiatric distinct part unit of a hospital reads for 36.69% readmissions, Discharged/transferred to another rehab fac including rehab units of a hospital for 27.70% and Discharged/transferred to another type of inpatient care institution for 20.86%, more importantly patients discharged to home only counts to be 9.30% among 60000+ encounters.
-Findings on number of prior inpatient visits shows that the higher the number, the increased chances of readmissions, here are the numbers: patient with no prior visits had 8.4% readmissions, 1 - 13%, 2 - 17%, 3- 20 % and patients who had 4 or more prior inpatient visits has a high percentage (30%) chance of being readmitted.read the [Contribution Guidelines](../sql/01_schema.sql)
-Some finding numbers to be taken into account with caution for example: "Still patient or expected to return for outpatient services" this category accounts for 66.67% of readmission rate but this calculation was only based on the number (3), which is almost zero in proportion to the 100000+ encounters.
+
+**1. Readmission rate by discharge disposition** ([query](./sql/04_analysis_queries.sql))
+Transfer-to-institutional-care categories show meaningfully higher 30-day readmission rates than home discharge:
+- Psychiatric hospital transfer: 36.69%
+- Rehab facility transfer: 27.70%
+- Other inpatient care institution: 20.86%
+- Discharged to home (60,234 encounters — the largest single category): 9.30%
+
+⚠️ Caution: some categories have very small sample sizes and shouldn't be trusted at face value — e.g., "Still patient or expected to return for outpatient services" shows 66.67%, but that's only 2 out of 3 total encounters.
+⚠️ "Expired" correctly shows 0% — patients who died cannot be readmitted, so this category should be excluded when calculating an overall readmission rate, not treated as a low-risk finding.
+
+**2. Readmission rate by prior inpatient visits** ([query](./sql/04_analysis_queries.sql))
+A clear, consistent upward trend — readmission risk rises with prior utilization:
+| Prior inpatient visits | Readmission rate |
+|---|---|
+| 0 | 8.44% |
+| 1 | 12.92% |
+| 2 | 17.43% |
+| 3 | 20.29% |
+| 4+ | 30.70% |
 
 ## Clinical Interpretation
 
 *(To be filled in — connecting the statistical findings to what they mean clinically, e.g., why number of prior inpatient visits or medication changes might plausibly relate to readmission risk.)*
-The expired category should not be counted while calculating readmission rate because it can effect the numbers of returnes falsely.
+
+The prior-inpatient-visits trend aligns with well-established readmission risk models used in practice, such as the LACE index and HOSPITAL score, which both weight recent prior admissions heavily as a predictor of future readmission. This isn't a novel finding — it's a confirmation that the dataset behaves the way real hospital utilization data is known to behave, which is itself a useful sanity check on the data's validity.
+
+The elevated readmission rates among patients discharged to institutional care (rehab, psychiatric transfer, other inpatient facilities) likely reflect underlying patient complexity rather than the discharge setting itself causing readmission — these patients were probably sicker or had more comorbidities to begin with, which is why they needed that level of care at discharge in the first place. This is a correlation-vs-causation distinction worth being explicit about; the data alone can't separate "the discharge setting caused higher readmission" from "sicker patients get both this discharge setting and higher readmission."
+
+The "Expired" discharge category requires exclusion from any true readmission-rate calculation, since death precludes readmission by definition — including it would understate true risk among the population actually eligible to return.
 
 ## What I'd Do Next
 
 *(To be filled in — e.g., bringing this into Python for a proper predictive model, visualizing trends in Power BI, etc.)*
 
+- Exclude "Expired" encounters before computing any overall/blended readmission rate
+- Investigate whether the discharge-disposition effect holds after controlling for age and number of prior visits together (do sicker/older patients dominate the high-risk discharge categories?)
+- Bring this into Python for a proper multivariate model once regression is learned, since SQL alone can show correlation but not isolate which factor matters most independently
 ## Files
 
 - `sql/01_schema.sql` — table definitions
