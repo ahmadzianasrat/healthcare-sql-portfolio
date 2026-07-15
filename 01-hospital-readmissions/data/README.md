@@ -24,14 +24,18 @@ This mirrors a real, ongoing concern in US hospitals under the CMS Hospital Read
 ## Approach
 
 *(To be filled in as the project progresses — schema design decisions, how nulls/`?` values were handled, how the ID-mapped fields were joined, etc.)*
+There are some values in the diabetic_patients table mentioned as Null, it's type is a string, not of an actually null value, so treated as a hard coded "null".
 
 ## Key Queries & Findings
 
 *(To be filled in — 4–6 business questions answered, with the one-line finding for each, linking to the relevant SQL file.)*
+the raw data suggests transfer-to-institutional-care categories carry meaningfully higher 30-day readmission rates than home discharge, consistent with clinical expectation — but the "Expired" and very-low-volume categories require exclusion/caution before this could inform any real intervention strategy.
+Some finding numbers to be taken into account with caution for example: "Still patient or expected to return for outpatient services" this category accounts for 66.67% of readmission rate but this calculation was only based on the number (3), which is almost zero in proportion to the 60000+ encounters.
 
 ## Clinical Interpretation
 
 *(To be filled in — connecting the statistical findings to what they mean clinically, e.g., why number of prior inpatient visits or medication changes might plausibly relate to readmission risk.)*
+The expired category should not be counted while calculating readmission rate because it can effect the numbers of returnes falsely.
 
 ## What I'd Do Next
 
