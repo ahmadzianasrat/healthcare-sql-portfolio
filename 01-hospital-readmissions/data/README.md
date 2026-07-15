@@ -29,8 +29,8 @@ There are some values in the diabetic_patients table mentioned as Null, it's typ
 ## Key Queries & Findings
 
 *(To be filled in — 4–6 business questions answered, with the one-line finding for each, linking to the relevant SQL file.)*
-the raw data suggests transfer-to-institutional-care categories carry meaningfully higher 30-day readmission rates than home discharge, consistent with clinical expectation — but the "Expired" and very-low-volume categories require exclusion/caution before this could inform any real intervention strategy.
-Some finding numbers to be taken into account with caution for example: "Still patient or expected to return for outpatient services" this category accounts for 66.67% of readmission rate but this calculation was only based on the number (3), which is almost zero in proportion to the 60000+ encounters.
+the raw data suggests transfer-to-institutional-care categories carry meaningfully higher 30-day readmission rates than home discharge, consistent with clinical expectation — but the "Expired" and very-low-volume categories require exclusion/caution before this could inform any real intervention strategy. Discharged/transferred/referred to a psychiatric hospital of psychiatric distinct part unit of a hospital reads for 36.69% readmissions, Discharged/transferred to another rehab fac including rehab units of a hospital for 27.70% and Discharged/transferred to another type of inpatient care institution for 20.86%, more importantly patients discharged to home only counts to be 9.30% among 60000+ encounters. read the [Contribution Guidelines](../sql/01_schema.sql)
+Some finding numbers to be taken into account with caution for example: "Still patient or expected to return for outpatient services" this category accounts for 66.67% of readmission rate but this calculation was only based on the number (3), which is almost zero in proportion to the 100000+ encounters.
 
 ## Clinical Interpretation
 
