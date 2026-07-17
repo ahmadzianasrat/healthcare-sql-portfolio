@@ -28,7 +28,41 @@ A minor UTF-8 encoding issue in the patient name fields (non-standard characters
 
 ## Key Queries & Findings
 
-*(To be added as analysis queries are written.)*
+**1. Most common coded entries in patient records** ([query](./sql/04_analysis_queries.sql))
+
+Querying the `conditions` table directly surfaces a mix of two distinct categories: genuine clinical diagnoses, and social/behavioral findings (e.g., employment status, social isolation, reported abuse). This is consistent with real-world EHR data — SNOMED CT, the coding system Synthea uses, codes social determinants of health (SDOH) alongside medical diagnoses, since both are clinically relevant and increasingly tracked together in practice.
+
+Initial attempts to separate the two by checking whether a description ends in "(finding)" vs. "(disorder)" proved unreliable — several genuine clinical entries (Normal pregnancy, Prediabetes, Hypertension) carry no suffix at all. Rather than build a fragile automated filter, the top 20 results were reviewed and classified manually:
+
+*Most common clinical diagnoses:*
+| Diagnosis | Occurrences |
+|---|---|
+| Viral sinusitis | 1,230 |
+| Acute viral pharyngitis | 730 |
+| Body mass index 30+ (obesity) | 548 |
+| Normal pregnancy | 548 |
+| Prediabetes | 438 |
+| Hypertension | 427 |
+| Anemia | 381 |
+| Chronic sinusitis | 245 |
+
+*Most common social/behavioral (SDOH) findings:*
+| Finding | Occurrences |
+|---|---|
+| Full-time employment | 15,886 |
+| Stress | 5,629 |
+| Part-time employment | 2,728 |
+| Limited social contact | 1,464 |
+| Social isolation | 1,364 |
+| Not in labor force | 1,219 |
+| Victim of intimate partner abuse | 979 |
+| Reports of violence in the environment | 660 |
+| Received higher education | 577 |
+| Risk activity involvement | 351 |
+
+⚠️ Note: this classification was done manually against the top 20 results only, not systematically across the full table — a small number of SDOH-type entries may exist further down the distribution unclassified. A more rigorous approach (e.g., cross-referencing SNOMED CT category codes) would be needed to split this reliably at full scale.
+
+The SDOH findings are themselves a genuinely notable result: employment status alone accounts for far more coded entries than any clinical diagnosis, which — if this were real hospital data — would be a strong signal for care teams to have SDOH screening integrated directly into clinical workflow, not treated as a separate administrative process.
 
 ## Clinical Interpretation
 
