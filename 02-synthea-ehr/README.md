@@ -1,9 +1,10 @@
-
-| Num. | Name | F/name | date |
-| :--- | :--- | :--- | :--- |
-| 1 | ahmad | mahmood | 2014/5/5 |
-| 2 | janan | manan | 2015/2/8 |
-
+|num|name|score|
+|---|---|---|
+|1|khan|100|
+|2|man|98|
+|3|tan|98|
+|4|tsan|70|
+|5|josdjf|65|
 # Project 2: Synthetic EHR Analysis (Synthea)
 
 ## Business Question
@@ -69,6 +70,31 @@ Initial attempts to separate the two by checking whether a description ends in "
 ⚠️ Note: this classification was done manually against the top 20 results only, not systematically across the full table — a small number of SDOH-type entries may exist further down the distribution unclassified. A more rigorous approach (e.g., cross-referencing SNOMED CT category codes) would be needed to split this reliably at full scale.
 
 The SDOH findings are themselves a genuinely notable result: employment status alone accounts for far more coded entries than any clinical diagnosis, which — if this were real hospital data — would be a strong signal for care teams to have SDOH screening integrated directly into clinical workflow, not treated as a separate administrative process.
+
+**2. Encounter cost by encounter class** ([query](./sql/04_analysis_queries.sql))
+
+| Encounter Class | Num Encounters | Total Cost | Avg Cost/Encounter |
+|---|---|---|---|
+| snf | 177 | $3,524,837.30 | $19,914.34 |
+| hospice | 173 | $1,431,921.36 | $8,277.00 |
+| inpatient | 1,887 | $12,963,427.98 | $6,869.86 |
+| emergency | 2,267 | $14,848,177.43 | $6,549.70 |
+| ambulatory | 22,381 | $110,452,419.08 | $4,935.10 |
+| urgentcare | 3,744 | $15,410,865.71 | $4,116.15 |
+| outpatient | 14,938 | $23,811,721.06 | $1,594.04 |
+| wellness | 23,088 | $33,983,097.45 | $1,471.89 |
+| home | 372 | $248,690.34 | $668.52 |
+| virtual | 94 | $53,890.10 | $573.30 |
+
+Per-visit cost and total system spend tell two different stories, and neither alone answers "where does the money go":
+
+- **Highest cost per visit:** skilled nursing facility (SNF) stays average $19,914 per encounter — even higher than inpatient hospitalization ($6,870) — consistent with SNF representing extended, complex post-acute care, often following a hospital stay.
+- **Highest total spend:** ambulatory care, at $110.4M — not because it's expensive per visit ($4,935, mid-range), but because it has the highest encounter volume in the dataset (22,381 encounters). The same pattern that inflated "Full-time employment" to the top of the conditions list in Q1 shows up here too: volume, not per-unit cost, drives the aggregate total.
+- **Low-cost, high-volume categories** (wellness, outpatient) generate large total spend purely through frequency, despite being among the cheapest individual encounter types.
+
+Sample sizes are solid across every category (smallest is `virtual` at n=94), so all ten averages can be trusted without the small-n caution needed in some of Project 1's findings.
+
+Worth noting as a sanity check on the dataset's realism: wellness visits are the single most common encounter type (23,088), which is the desired pattern in a population that's engaging in preventive care — a reasonable sign that Synthea's generated population behaves plausibly, not just randomly.
 
 ## Clinical Interpretation
 
