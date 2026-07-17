@@ -23,3 +23,24 @@ FROM conditions
 GROUP BY code, description
 ORDER BY diagnosis_count DESC
 LIMIT 20;
+
+-- =====================================================================
+-- Q2: Encounter cost by encounter class
+-- Business question: which encounter types (wellness, emergency,
+-- inpatient, etc.) drive the most cost -- and does that differ between
+-- per-visit cost and total system-wide spend?
+--
+-- Note: per-visit average and total spend tell different stories.
+-- SNF and inpatient stays have the highest average cost per encounter,
+-- but ambulatory and wellness visits -- despite much lower per-visit
+-- cost -- generate the highest total spend due to much higher volume.
+-- =====================================================================
+
+SELECT
+    encounter_class,
+    COUNT(*) AS num_encounters,
+    SUM(total_claim_cost) AS class_total,
+    ROUND(AVG(total_claim_cost), 2) AS class_avg
+FROM encounters
+GROUP BY encounter_class
+ORDER BY class_avg DESC;
