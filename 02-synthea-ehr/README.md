@@ -1,10 +1,3 @@
-|num|name|score|
-|---|---|---|
-|1|khan|100|
-|2|man|98|
-|3|tan|98|
-|4|tsan|70|
-|5|josdjf|65|
 # Project 2: Synthetic EHR Analysis (Synthea)
 
 ## Business Question
