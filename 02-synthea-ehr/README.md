@@ -1,39 +1,9 @@
-|
-Num.
-|
-Name
-|
-F/name
-|
-date
-|
 
-:---
-|
-:---
-|
-:---
-|
-:---
-|
+| Num. | Name | F/name | date |
+| :--- | :--- | :--- | :--- |
+| 1 | ahmad | mahmood | 2014/5/5 |
+| 2 | janan | manan | 2015/2/8 |
 
-1
-|
-ahmad
-|
-mahmood
-|
-2014/5/5
-|
-
-2
-|
-janan
-|
-manan
-|
-2015/2/8
-|
 # Project 2: Synthetic EHR Analysis (Synthea)
 
 ## Business Question
