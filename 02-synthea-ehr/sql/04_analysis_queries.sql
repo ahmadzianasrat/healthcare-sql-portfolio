@@ -44,3 +44,68 @@ SELECT
 FROM encounters
 GROUP BY encounter_class
 ORDER BY class_avg DESC;
+
+
+-- =====================================================================
+-- Q3: Medications by condition (unfiltered)
+-- Business question: which medications most commonly co-occur with
+-- which conditions?
+--
+-- Note: medications and conditions are joined via shared encounter_id,
+-- so each pairing represents co-occurrence within the same visit, not
+-- a confirmed prescribing relationship. One encounter can log several
+-- medications and several conditions, producing every combination.
+--
+-- As with Q1, the top results here are dominated by SDOH findings
+-- (Full-time employment, Stress, etc.) purely due to their high
+-- frequency, not genuine clinical relationships. See Q3b for a
+-- filtered view excluding these.
+-- =====================================================================
+
+SELECT 
+    m.description AS medication,
+    c.description AS condition,
+    COUNT(*) AS pairing_count,
+    SUM(m.total_cost) AS total_cost,
+    ROUND(AVG(m.total_cost), 2) AS avg_cost_per_instance
+FROM medications m
+JOIN encounters e ON m.encounter_id = e.id
+JOIN conditions c ON e.id = c.encounter_id
+GROUP BY c.description, m.description
+ORDER BY pairing_count DESC
+LIMIT 20;
+
+
+-- =====================================================================
+-- Q3b: Medications by condition, excluding SDOH findings
+-- Same as Q3, with the ten SDOH condition labels identified in Q1
+-- excluded, to surface genuine clinical medication/condition pairings.
+-- =====================================================================
+
+SELECT 
+    m.description AS medication,
+    c.description AS condition,
+    COUNT(*) AS pairing_count,
+    SUM(m.total_cost) AS total_cost,
+    ROUND(AVG(m.total_cost), 2) AS avg_cost_per_instance
+FROM medications m
+JOIN encounters e ON m.encounter_id = e.id
+JOIN conditions c ON e.id = c.encounter_id
+WHERE c.description NOT IN (
+    'Full-time employment (finding)',
+    'Stress (finding)',
+    'Part-time employment (finding)',
+    'Limited social contact (finding)',
+    'Social isolation (finding)',
+    'Not in labor force (finding)',
+    'Victim of intimate partner abuse (finding)',
+    'Reports of violence in the environment (finding)',
+    'Received higher education (finding)',
+    'Risk activity involvement (finding)'
+)
+GROUP BY c.description, m.description
+ORDER BY pairing_count DESC
+LIMIT 20;
+
+
+
