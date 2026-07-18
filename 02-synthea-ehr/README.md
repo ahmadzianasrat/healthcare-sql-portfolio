@@ -89,6 +89,19 @@ Sample sizes are solid across every category (smallest is `virtual` at n=94), so
 
 Worth noting as a sanity check on the dataset's realism: wellness visits are the single most common encounter type (23,088), which is the desired pattern in a population that's engaging in preventive care — a reasonable sign that Synthea's generated population behaves plausibly, not just randomly.
 
+**3. Medications by condition** ([query](./sql/04_analysis_queries.sql))
+
+Medications and conditions were joined through their shared `encounter_id`, meaning each pairing represents a *co-occurrence* within the same visit, not a confirmed prescribing relationship — a limitation similar to Q1's, since one encounter can log several medications and several conditions simultaneously, producing every possible combination.
+
+An initial unfiltered run surfaced the same SDOH-dominance issue found in Q1: the ten highest-volume pairings were all associated with "Full-time employment," "Stress," and similar non-clinical findings — an artifact of those labels' sheer frequency, not a real medication relationship. Re-running with the same ten SDOH labels excluded (per Q1's classification) surfaced clinically coherent results:
+
+- **Hypertension medications** (lisinopril, hydrochlorothiazide, amlodipine) pair most strongly with a diagnosis of Hypertension — a sensible internal consistency check on the dataset.
+- **Coronary Heart Disease** pairs with nitroglycerin and simvastatin, both standard cardiac medications.
+- **Respiratory conditions** (pneumonia, hypoxemia, respiratory distress) share an identical medication/count profile (albuterol inhaler, acetaminophen, enoxaparin) — consistent with these three conditions frequently being diagnosed together at the same respiratory-illness encounters, rather than a data error.
+- **Otitis media** pairs with amoxicillin, a standard real-world antibiotic choice for ear infections.
+
+Overall, once the SDOH co-occurrence noise is removed, the remaining medication-condition pairings align well with real prescribing practice — a reasonable indicator that Synthea's underlying clinical model is internally consistent, even though this is fully synthetic data.
+
 ## Clinical Interpretation
 
 *(To be added alongside findings.)*
